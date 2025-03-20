@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  app:
+    image: roundrobin/gastrolytics-web:0.1.0  # Use the pre-built image
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - ATLAS_MONGODB_URI=${ATLAS_MONGODB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+    volumes:
+      - ./uploads:/app/public/uploads
