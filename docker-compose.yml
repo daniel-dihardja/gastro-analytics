@@ -12,6 +12,23 @@ services:
       - JWT_SECRET=${JWT_SECRET}
     volumes:
       - ${UPLOADS_PATH}:/app/public/uploads
+    networks:
+      - gastro-net
+
+  datasc:
+    image: roundrobin/gastrolytics-datasc:latest
+    expose:
+      - "8000"
+    env_file:
+      - .env
+    environment:
+      - ATLAS_MONGODB_URI=${ATLAS_MONGODB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - ${UPLOADS_PATH}:/app/uploads
+    networks:
+      - gastro-net
 
   nginx:
     image: nginx:latest
@@ -21,15 +38,13 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro  # Mount the custom Nginx config
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./certbot/conf:/etc/letsencrypt                          
       - ./certbot/www:/var/www/certbot  
     restart: unless-stopped
+    networks:
+      - gastro-net
 
-  # certbot:
-  #   image: certbot/certbot
-  #   container_name: certbot
-  #   volumes:
-  #     - ./certbot/conf:/etc/letsencrypt
-  #     - ./certbot/www:/var/www/certbot
-  #   command: renew --webroot -w /var/www/certbot --quiet  
+networks:
+  gastro-net:
+    driver: bridge
